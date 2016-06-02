@@ -6,13 +6,15 @@ import ImageIO
 
 #if os(iOS)
     import MobileCoreServices
-    import UIKit.UIColor
+    import UIKit
     typealias ColorType = UIColor
+    typealias FontType = UIFont
     typealias ImageType = UIImage
 #else
     import CoreServices
-    import AppKit.NSColor
+    import AppKit
     typealias ColorType = NSColor
+    typealias FontType = NSFont
     typealias ImageType = NSImage
 #endif
 
@@ -119,6 +121,41 @@ let circleImage = circleCGImage.getImage()
 let circleImageData = circleCGImage.getTIFFData()!
 let circleImagePath = (storagePath()! as NSString).stringByAppendingPathComponent("circle.tiff")
 try! circleImageData.writeToFile(circleImagePath, options: .AtomicWrite)
+
+// Let's draw a PDF document
+
+func drawHelloWorld() -> NSData? {
+    let output = NSMutableData()
+    UIGraphicsBeginPDFContextToData(output, CGRect(origin: CGPoint.zero, size: CGSize(width: 800, height: 600)), nil)
+    guard let context = UIGraphicsGetCurrentContext() else { return nil }
+
+    UIGraphicsBeginPDFPage()
+
+    CGContextSaveGState(context)
+    let title = "Hello World" as NSString
+    title.drawAtPoint(CGPoint(x: 40, y: 40), withAttributes: [
+        NSFontAttributeName: FontType(name: "HelveticaNeue", size: 48.0)!,
+        NSForegroundColorAttributeName: ColorType.brownColor(),
+    ])
+    CGContextRestoreGState(context)
+
+    CGContextSaveGState(context)
+    CGContextSetFillColorWithColor(context, ColorType.redColor().colorWithAlphaComponent(0.8).CGColor)
+    CGContextFillEllipseInRect(context, CGRect(x: 420, y: 200, width: 250, height: 250))
+    CGContextRestoreGState(context)
+
+    CGContextSaveGState(context)
+    CGContextSetFillColorWithColor(context, ColorType.yellowColor().colorWithAlphaComponent(0.67).CGColor)
+    CGContextFillRect(context, CGRect(x: 40, y: 100, width: 500, height: 300))
+    CGContextRestoreGState(context)
+
+    UIGraphicsEndPDFContext()
+    return NSData(data: output)
+}
+
+let pdfData = drawHelloWorld()!
+let pdfPath = (storagePath()! as NSString).stringByAppendingPathComponent("helloworld.pdf")
+try! pdfData.writeToFile(pdfPath, options: .AtomicWrite)
 
 // Let's do some image manipulation
 
