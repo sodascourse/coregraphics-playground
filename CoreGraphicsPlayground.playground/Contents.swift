@@ -22,7 +22,7 @@ import ImageIO
 
 #if os(iOS)
     func drawInUIKitContext(size: CGSize, block: (CGContext) -> Void) -> UIImage? {
-        UIGraphicsBeginImageContextWithOptions(size, true, 0.0)
+        UIGraphicsBeginImageContextWithOptions(size, false, 0.0)
         defer {
             UIGraphicsEndImageContext()
         }
